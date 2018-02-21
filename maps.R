@@ -45,8 +45,8 @@ sa4_map$group <- paste("g",sa4_map$group,sep=".")
 sa4_map$piece <- paste("p",sa4_map$piece,sep=".")
 
 sa4_data %>%
-  select(id, SA4_CODE16, SA4_NAME16) %>%
-  rename(name = SA4_NAME16) %>%
+  select(id, SA4_CODE16, SA4_NAME16, AREASQKM16) %>%
+  rename(name = SA4_NAME16, Area_SqKm =AREASQKM16) %>%
   right_join(sa4Population) %>%
   right_join(sa4_map) -> sa4_map
 
@@ -88,7 +88,7 @@ elect_map$piece <- paste("p",elect_map$piece,sep=".")
 elect_data %>%
   select(id, Elect_div, State, Area_SqKm, Total_Population) %>%
   rename(name =  Elect_div,
-         population = Total_Population) %>%
+         pop = Total_Population) %>%
   right_join(elect_map) -> elect_map
 
 
