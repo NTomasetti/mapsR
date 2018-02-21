@@ -2,6 +2,7 @@
 
 #http://www.abs.gov.au/AUSSTATS/subscriber.nsf/log?openagent&1270055001_sa2_2016_aust_shape.zip&1270.0.55.001&Data%20Cubes&A09309ACB3FA50B8CA257FED0013D420&0&July%202016&12.07.2016&Latest
 #http://www.abs.gov.au/AUSSTATS/subscriber.nsf/log?openagent&1270055001_sa4_2016_aust_shape.zip&1270.0.55.001&Data%20Cubes&C65BC89E549D1CA3CA257FED0013E074&0&July%202016&12.07.2016&Latest
+#http://www.abs.gov.au/AUSSTATS/subscriber.nsf/log?openagent&1270055001_ste_2016_aust_shape.zip&1270.0.55.001&Data%20Cubes&65819049BE2EB089CA257FED0013E865&0&July%202016&12.07.2016&Latest
 
 library(tidyverse)
 
@@ -12,12 +13,12 @@ popData <- readr::read_csv('population.csv') %>%
     State == 'Queensland' ~ 'QLD',
     State == 'South Australia' ~ 'SA',
     State == 'Western Australia' ~ 'WA',
-    State == 'Tasmania' ~ 'TAS', 
+    State == 'Tasmania' ~ 'TAS',
     State == 'Northern Territory' ~ 'NT',
     State == 'Australian Capital Territory' ~ 'ACT',
-    TRUE ~ as.character(State))) 
+    TRUE ~ as.character(State)))
 
-popData %>% 
+popData %>%
   group_by(State) %>%
   summarise(pop = sum(`Total Persons`)) -> statePopulation
 
@@ -75,7 +76,7 @@ electShp <- rgdal::readOGR('elect')
 #electSmall <- rmapshaper::ms_simplify(electShp, keep = 0.05)
 #save(electSmall, file = "electSmall.Rda")
 load("~/mapsR/electSmall.Rda")
- 
+
 elect_data <- electSmall@data
 elect_data$id <- row.names(elect_data)
 elect_map <- ggplot2::fortify(electSmall)
@@ -85,41 +86,37 @@ elect_map$piece <- paste("p",elect_map$piece,sep=".")
 # Incorporate population
 elect_data %>%
   select(id, Elect_div, State, Area_SqKm, Total_Population) %>%
-  rename(name =  Elect_div, 
+  rename(name =  Elect_div,
          population = Total_Population) %>%
-  right_join(elect_map) -> elect_map 
+  right_join(elect_map) -> elect_map
 
 
 ggplot(elect_map) + geom_polygon(aes(long, lat, group = group),
                                  colour = 'grey')
 
 
+ausShp <- rgdal::readOGR('Aus')
+#ausSmall <- rmapshaper::ms_simplify(ausShp, keep = 0.05)
+#save(ausSmall, file = 'ausSmall.Rda')
+load("~/mapsR/ausSmall.Rda")
+aus_data <- ausSmall@data
+aus_data$id <- row.names(aus_data)
+aus_map <- ggplot2::fortify(ausSmall)
+aus_map$group <- paste("g", aus_map$group, sep = ".")
+aus_map$piece <- paste("p", aus_map$piece, sep = ".")
 
-plotOz <- function(region = c('AUS', 'ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'), 
-                   division = c('sa2', 'sa4', 'elect'),
-                   ...){
-  require(rlang)
-  #consider allowing map data file to be passed eg colour by column not in our sa2_map
-  div <- match.arg(division)
-  if(div == 'sa2'){
-    map <- sa2_map
-  } else if(div == 'sa4') {
-    map <- sa4_map
-  } else if(div == 'elect') {
-    map <- elect_map
-  }
-  
-  reg <- match.arg(region)
-  if(reg != 'AUS'){
-    map <- filter(map, State == reg)
-  }
-  # extraAes <- rlang::quos(...)
-  #check it dynamically fills using column name passed directly from plotOz
-  
-  p <- ggplot(map) + geom_polygon(aes(long, lat, group = group, fill = Area_SqKm,label = name), ...)   
-  
-  return(p)
-}
-
-plotly::ggplotly(
-plotOz('VIC', 'elect', colour = 'grey90', size = 0.1))
+# Switch states to the codes and attach population data to map
+aus_data %>%
+  mutate(State = case_when(
+    STE_NAME16 == 'New South Wales' ~ 'NSW',
+    STE_NAME16 == 'Victoria' ~ 'VIC',
+    STE_NAME16 == 'Queensland' ~ 'QLD',
+    STE_NAME16 == 'South Australia' ~ 'SA',
+    STE_NAME16 == 'Western Australia' ~ 'WA',
+    STE_NAME16 == 'Tasmania' ~ 'TAS',
+    STE_NAME16 == 'Northern Territory' ~ 'NT',
+    STE_NAME16 == 'Australian Capital Territory' ~ 'ACT',
+    TRUE ~ as.character(STE_NAME16))) %>%
+  select(id, State) %>%
+  right_join(statePopulation) %>%
+  right_join(aus_map) -> aus_map
