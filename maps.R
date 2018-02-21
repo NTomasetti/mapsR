@@ -64,7 +64,10 @@ sa2_data %>%
 
 ggplot(sa2_map) + geom_polygon(aes(long, lat, group = group), colour = 'grey')
 
-plotOz <- function(region = c('AUS', 'ACT', 'NSW', 'NT', 'SA', 'TAS', 'VIC', 'WA'), division = c('sa2', 'sa4')){
+plotOz <- function(region = c('AUS', 'ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'), 
+                   division = c('sa2', 'sa4'),
+                   fillPop = FALSE,
+                   ...){
   div <- match.arg(division)
   if(div == 'sa2'){
     map <- sa2_map
@@ -76,9 +79,12 @@ plotOz <- function(region = c('AUS', 'ACT', 'NSW', 'NT', 'SA', 'TAS', 'VIC', 'WA
   if(reg != 'AUS'){
     map <- filter(map, State == reg)
   }
-  
-  p <- ggplot(map) + geom_polygon(aes(long, lat, group = group), fill = 'white', colour = 'grey')
-  print(p)
+  if(fillPop){
+    p <- ggplot(map) + geom_polygon(aes(long, lat, group = group, fill = pop), ...)  
+  } else {
+    p <- ggplot(map) + geom_polygon(aes(long, lat, group = group), ...)
+  }
+  return(p)
 }
 
-plotOz('TAS', 'sa4')
+plotOz('VIC', 'sa2', fillPop = TRUE, colour = 'grey90')
