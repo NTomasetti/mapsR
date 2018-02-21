@@ -1,7 +1,9 @@
-library(tidyverse)
+
 
 #http://www.abs.gov.au/AUSSTATS/subscriber.nsf/log?openagent&1270055001_sa2_2016_aust_shape.zip&1270.0.55.001&Data%20Cubes&A09309ACB3FA50B8CA257FED0013D420&0&July%202016&12.07.2016&Latest
 #http://www.abs.gov.au/AUSSTATS/subscriber.nsf/log?openagent&1270055001_sa4_2016_aust_shape.zip&1270.0.55.001&Data%20Cubes&C65BC89E549D1CA3CA257FED0013E074&0&July%202016&12.07.2016&Latest
+
+library(tidyverse)
 
 popData <- readr::read_csv('population.csv') %>%
   mutate(State = case_when(
@@ -30,7 +32,8 @@ popData %>%
   rename(SA2_CODE16 = `SA2 code`) -> sa2Population
 
 sa4Shp <- rgdal::readOGR('SA4')
-sa4Small <- rmapshaper::ms_simplify(sa4Shp, keep = 0.05)
+
+sa4Small <- rmapshaper::ms_simplify(sa4Shp, keep = 0.01)
 
 sa4_data <- sa4Small@data
 sa4_data$id <- row.names(sa4_data)
@@ -66,27 +69,53 @@ sa2_data %>%
 
 ggplot(sa2_map) + geom_polygon(aes(long, lat, group = group), colour = 'grey')
 
+
+electShp <- rgdal::readOGR('elect')
+
+#electSmall <- rmapshaper::ms_simplify(electShp, keep = 0.05)
+#save(electSmall, file = "electSmall.Rda")
+load("~/mapsR/electSmall.Rda")
+ 
+elect_data <- electSmall@data
+elect_data$id <- row.names(elect_data)
+elect_map <- ggplot2::fortify(electSmall)
+elect_map$group <- paste("g",elect_map$group,sep=".")
+elect_map$piece <- paste("p",elect_map$piece,sep=".")
+
+# Incorporate population
+elect_data %>%
+  select(id, elect_CODE16, elect_NAME16) %>%
+  rename(name = elect_NAME16) %>%
+  right_join(electPopulation) %>%
+  right_join(elect_map) -> elect_map
+
+ggplot(elect_map) + geom_polygon(aes(long, lat, group = group), colour = 'grey')
+
+
+
 plotOz <- function(region = c('AUS', 'ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'), 
-                   division = c('sa2', 'sa4'),
-                   fillPop = FALSE,
+                   division = c('sa2', 'sa4', 'elect'),
                    ...){
+  require(rlang)
+  #consider allowing map data file to be passed eg colour by column not in our sa2_map
   div <- match.arg(division)
   if(div == 'sa2'){
     map <- sa2_map
   } else if(div == 'sa4') {
     map <- sa4_map
+  } else if(div == 'elect') {
+    map <- elect_map
   }
   
   reg <- match.arg(region)
   if(reg != 'AUS'){
     map <- filter(map, State == reg)
   }
-  if(fillPop){
-    p <- ggplot(map) + geom_polygon(aes(long, lat, group = group, fill = pop, label = name), ...)  
-  } else {
-    p <- ggplot(map) + geom_polygon(aes(long, lat, group = group, label = name), ...)
-  }
+  extraAes <- rlang::quos(...)
+  #check it dynamically fills using column name passed directly from plotOz
+  p <- ggplot(map) + geom_polygon(aes(long, lat, group = group, !!!extraAes))  
+  
   return(p)
 }
 
-plotOz('VIC', 'sa2', fillPop = TRUE, colour = 'grey90', size = 0.1) %>% plotly::ggplotly()
+plotOz('VIC', 'sa4', fill = pop, colour = 'grey90', size = 0.1) %>% plotly::ggplotly()
