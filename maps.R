@@ -33,7 +33,7 @@ popData %>%
 
 sa4Shp <- rgdal::readOGR('SA4')
 
-sa4Small <- rmapshaper::ms_simplify(sa4Shp, keep = 0.01)
+sa4Small <- rmapshaper::ms_simplify(sa4Shp, keep = 0.02)
 
 sa4_data <- sa4Small@data
 sa4_data$id <- row.names(sa4_data)
@@ -84,12 +84,14 @@ elect_map$piece <- paste("p",elect_map$piece,sep=".")
 
 # Incorporate population
 elect_data %>%
-  select(id, elect_CODE16, elect_NAME16) %>%
-  rename(name = elect_NAME16) %>%
-  right_join(electPopulation) %>%
-  right_join(elect_map) -> elect_map
+  select(id, Elect_div, State, Area_SqKm, Total_Population) %>%
+  rename(name =  Elect_div, 
+         population = Total_Population) %>%
+  right_join(elect_map) -> elect_map 
 
-ggplot(elect_map) + geom_polygon(aes(long, lat, group = group), colour = 'grey')
+
+ggplot(elect_map) + geom_polygon(aes(long, lat, group = group),
+                                 colour = 'grey')
 
 
 
@@ -111,11 +113,13 @@ plotOz <- function(region = c('AUS', 'ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VI
   if(reg != 'AUS'){
     map <- filter(map, State == reg)
   }
-  extraAes <- rlang::quos(...)
+  # extraAes <- rlang::quos(...)
   #check it dynamically fills using column name passed directly from plotOz
-  p <- ggplot(map) + geom_polygon(aes(long, lat, group = group, !!!extraAes))  
+  
+  p <- ggplot(map) + geom_polygon(aes(long, lat, group = group, fill = Area_SqKm,label = name), ...)   
   
   return(p)
 }
 
-plotOz('VIC', 'sa4', fill = pop, colour = 'grey90', size = 0.1) %>% plotly::ggplotly()
+plotly::ggplotly(
+plotOz('VIC', 'elect', colour = 'grey90', size = 0.1))
