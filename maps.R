@@ -40,7 +40,8 @@ sa4_map$group <- paste("g",sa4_map$group,sep=".")
 sa4_map$piece <- paste("p",sa4_map$piece,sep=".")
 
 sa4_data %>%
-  select(id, SA4_CODE16) %>%
+  select(id, SA4_CODE16, SA4_NAME16) %>%
+  rename(name = SA4_NAME16) %>%
   right_join(sa4Population) %>%
   right_join(sa4_map) -> sa4_map
 
@@ -58,7 +59,8 @@ sa2_map$group <- paste("g",sa2_map$group,sep=".")
 sa2_map$piece <- paste("p",sa2_map$piece,sep=".")
 
 sa2_data %>%
-  select(id, SA2_CODE16) %>%
+  select(id, SA2_CODE16, SA2_NAME16) %>%
+  rename(name = SA2_NAME16) %>%
   right_join(sa2Population) %>%
   right_join(sa2_map)-> sa2_map
 
@@ -80,11 +82,11 @@ plotOz <- function(region = c('AUS', 'ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VI
     map <- filter(map, State == reg)
   }
   if(fillPop){
-    p <- ggplot(map) + geom_polygon(aes(long, lat, group = group, fill = pop), ...)  
+    p <- ggplot(map) + geom_polygon(aes(long, lat, group = group, fill = pop, label = name), ...)  
   } else {
-    p <- ggplot(map) + geom_polygon(aes(long, lat, group = group), ...)
+    p <- ggplot(map) + geom_polygon(aes(long, lat, group = group, label = name), ...)
   }
   return(p)
 }
 
-plotOz('VIC', 'sa2', fillPop = TRUE, colour = 'grey90')
+plotOz('VIC', 'sa2', fillPop = TRUE, colour = 'grey90', size = 0.1) %>% plotly::ggplotly()
