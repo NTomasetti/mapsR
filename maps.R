@@ -33,7 +33,8 @@ popData %>%
 
 sa4Shp <- rgdal::readOGR('SA4')
 
-sa4Small <- rmapshaper::ms_simplify(sa4Shp, keep = 0.02)
+#sa4Small <- rmapshaper::ms_simplify(sa4Shp, keep = 0.02)
+load("~/mapsR/sa4Small.Rda")
 
 sa4_data <- sa4Small@data
 sa4_data$id <- row.names(sa4_data)
