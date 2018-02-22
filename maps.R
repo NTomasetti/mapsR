@@ -38,6 +38,7 @@ popData %>%
   summarise(pop = sum(`Total Persons`)) %>%
   rename(SA2_CODE16 = `SA2 code`) -> sa2Population
 
+
 ## SA4 
 #sa4Shp <- rgdal::readOGR('SA4')
 #sa4Small <- rmapshaper::ms_simplify(sa4Shp, keep = 0.02)
