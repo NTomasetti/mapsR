@@ -53,8 +53,10 @@ sa4_data %>%
 ggplot(sa4_map) + geom_polygon(aes(long, lat, group = group), colour = 'grey')
 
 
-sa2Shp <- rgdal::readOGR('SA2')
-sa2Small <- rmapshaper::ms_simplify(sa2Shp, keep = 0.05)
+#sa2Shp <- rgdal::readOGR('SA2')
+#save(sa2Small, file = "sa2Small.Rda")
+load("~/mapsR/sa2Small.Rda")
+#sa2Small <- rmapshaper::ms_simplify(sa2Shp, keep = 0.05)
 
 sa2_data <- sa2Small@data
 sa2_data$id <- row.names(sa2_data)
@@ -96,10 +98,11 @@ ggplot(elect_map) + geom_polygon(aes(long, lat, group = group),
                                  colour = 'grey')
 
 
-ausShp <- rgdal::readOGR('Aus')
+#ausShp <- rgdal::readOGR('Aus')
 #ausSmall <- rmapshaper::ms_simplify(ausShp, keep = 0.05)
 #save(ausSmall, file = 'ausSmall.Rda')
 load("~/mapsR/ausSmall.Rda")
+
 aus_data <- ausSmall@data
 aus_data$id <- row.names(aus_data)
 aus_map <- ggplot2::fortify(ausSmall)
