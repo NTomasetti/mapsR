@@ -10,7 +10,7 @@ library(rlang)
 # Output:
 # alternatively a ggplot2 or ggplotly object of the mapped shapefile, possibly filtered by state
 
-plotOz <- function(data = NULL, state = NULL, fill = NULL, interactive = FALSE, label = NULL){
+plotOz <- function(data = NULL, state = NULL, fill = NULL, interactive = FALSE, label = NULL, long = NULL, lat = NULL){
   #If no shapefile is supplied in data, default to the basic map of Australia with state lines
   if(is.null(data)){
     data <- aus_map
@@ -31,6 +31,17 @@ plotOz <- function(data = NULL, state = NULL, fill = NULL, interactive = FALSE, 
   } else {
     p <- ggplot(data) + aes(long, lat, group = group) + geom_polygon(fill = 'grey90', colour = 'black') + theme_bw()
   }
+  
+  
+  # Show only certain long
+  if(!is.null(long)){
+    p <- p + coord_cartesian(xlim = (long))
+  }
+  # Show only certain lat
+  if(!is.null(lat)){
+    p <- p + coord_cartesian(ylim = (lat))
+  }
+  
   # Optionally return a plotly object
   if(interactive){
     label <- quo_text(enquo(label))
@@ -39,9 +50,11 @@ plotOz <- function(data = NULL, state = NULL, fill = NULL, interactive = FALSE, 
     }
     return(plotly::ggplotly(p))
   }
+  
+  
   return(p)
 }
-plotOz(state = c('NSW', 'VIC', 'TAS', 'QLD'), fill = pop)
+plotOz(data= sa4_map, state = c('NSW', 'VIC', 'TAS', 'QLD'), fill = pop, long = c(145, 156))
 plotOz(fill = pop, interactive = TRUE, label = State)
 plotOz()
 plotOz(state = 'VIC', interactive = TRUE, label = paste(pop, State))
