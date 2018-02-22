@@ -14,6 +14,8 @@ library(rlang)
 #'     If NULL then fill defaults to 'grey90'
 #' @param interactive logical - if FALSE (default) a ggplot2 object is returned. If TRUE a plotly::ggplotly object is returned
 #' @param label Either NULL or a column in the data to include in the plotly tooltips
+#' @param long Either Null or a vector c(longMin, longMax) passed to xlim to view a particular longitude range
+#' @param lat Either NULL or a vector c(latMin, latMax) passed to ylim to view a particular lattitude range
 #'
 #' @return Either a ggplot2 or ggplotly object
 #' @export
@@ -53,8 +55,8 @@ plotOz <- function(data = NULL, state = NULL, fill = NULL, interactive = FALSE, 
   } else {
     p <- ggplot(data) + aes(long, lat, group = group) + geom_polygon(fill = 'grey90', colour = 'black') + theme_bw()
   }
-  
-  
+
+
   # Show only certain long
   if(!is.null(long)){
     p <- p + coord_cartesian(xlim = (long))
@@ -63,7 +65,7 @@ plotOz <- function(data = NULL, state = NULL, fill = NULL, interactive = FALSE, 
   if(!is.null(lat)){
     p <- p + coord_cartesian(ylim = (lat))
   }
-  
+
   # Optionally return a plotly object
   if(interactive){
     label <- quo_text(enquo(label))
@@ -72,8 +74,8 @@ plotOz <- function(data = NULL, state = NULL, fill = NULL, interactive = FALSE, 
     }
     return(plotly::ggplotly(p))
   }
-  
-  
+
+
   return(p)
 }
 
