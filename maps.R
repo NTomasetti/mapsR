@@ -32,8 +32,7 @@ popData %>%
   summarise(pop = sum(`Total Persons`)) %>%
   rename(SA2_CODE16 = `SA2 code`) -> sa2Population
 
-sa4Shp <- rgdal::readOGR('SA4')
-
+#sa4Shp <- rgdal::readOGR('SA4')
 #sa4Small <- rmapshaper::ms_simplify(sa4Shp, keep = 0.02)
 load("~/mapsR/sa4Small.Rda")
 
@@ -55,8 +54,8 @@ ggplot(sa4_map) + geom_polygon(aes(long, lat, group = group), colour = 'grey')
 
 #sa2Shp <- rgdal::readOGR('SA2')
 #save(sa2Small, file = "sa2Small.Rda")
-load("~/mapsR/sa2Small.Rda")
 #sa2Small <- rmapshaper::ms_simplify(sa2Shp, keep = 0.05)
+load("~/mapsR/sa2Small.Rda")
 
 sa2_data <- sa2Small@data
 sa2_data$id <- row.names(sa2_data)
