@@ -49,21 +49,21 @@ plotOz <- function(data = NULL, state = NULL, fill = NULL, interactive = FALSE, 
     data <- filter(data, State %in% state)
   }
 
+  # Quote the fill argument and convert to text
   fill <- quo_text(enquo(fill))
+  # Create plot objects, either filled by the quoted input (first case, fill != NULL), or by default colours (second case)
   if(fill != "NULL"){
-    p <- ggplot(data) + aes_string('long', 'lat', group = 'group', fill = fill) + geom_polygon() +  theme_bw()
+    p <- ggplot(data) +
+      aes_string('long', 'lat', group = 'group', fill = fill) +
+      geom_polygon() +
+      coord_cartesian(xlim = long, ylim = lat) +
+      theme_bw()
   } else {
-    p <- ggplot(data) + aes(long, lat, group = group) + geom_polygon(fill = 'grey90', colour = 'black') + theme_bw()
-  }
-
-
-  # Show only certain long
-  if(!is.null(long)){
-    p <- p + coord_cartesian(xlim = (long))
-  }
-  # Show only certain lat
-  if(!is.null(lat)){
-    p <- p + coord_cartesian(ylim = (lat))
+    p <- ggplot(data) +
+      aes(long, lat, group = group) +
+      geom_polygon(fill = 'grey90', colour = 'black') +
+      coord_cartesian(xlim = long, ylim = lat) +
+      theme_bw()
   }
 
   # Optionally return a plotly object
