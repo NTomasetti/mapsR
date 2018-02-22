@@ -35,10 +35,12 @@ library(rlang)
 #' An interactive plot of Australia with colour filled by population and the State names added to the tooltip
 
 plotOz <- function(data = NULL, state = NULL, fill = NULL, interactive = FALSE, label = NULL, long = NULL, lat = NULL){
+
   #If no shapefile is supplied in data, default to the basic map of Australia with state lines
   if(is.null(data)){
     data <- aus_map
   }
+
   # Check if a state argument is supplied, if null then do not filter the data
   if(!is.null(state)){
     # If a state argument is supplied, but it is not a string, or does not match the valid state codes return an error
@@ -74,8 +76,6 @@ plotOz <- function(data = NULL, state = NULL, fill = NULL, interactive = FALSE, 
     }
     return(plotly::ggplotly(p))
   }
-
-
   return(p)
 }
 
