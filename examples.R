@@ -36,8 +36,6 @@ ggplot(elect_map) + geom_polygon(aes(long, lat, group = group))
   
 save(elect_map, file= 'elect_map.Rda')
 
-
-
 elect_map %>%
   ggplot() + geom_polygon(aes(long, lat, group = group, fill = State)) +
   theme_bw() +
@@ -49,4 +47,13 @@ sa4_map %>%
   ggplot() + geom_polygon(aes(long, lat, group = group, fill = pop)) +
   theme_bw() +
   coord_map(xlim = c(140, 155))
+
+# Test state by state SA2 vs SA4
+st <- 'VIC'
+ggplot() + geom_polygon(data = sa4 %>% filter(State == st), aes(long, lat, group = group), fill = 'black') + 
+  geom_polygon(data = sa2 %>% filter(State = st), aes(long, lat, group = group), fill = 'red')
+
+
+
+
 
