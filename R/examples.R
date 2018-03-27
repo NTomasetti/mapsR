@@ -22,7 +22,7 @@ elect_map %>%
   scale_fill_ochre(palette = "namatjira_qual") +
   coord_map()
 
-sa4_map %>%
+sa2_map %>%
   filter(State %in% c('VIC', 'NSW', 'ACT', 'TAS')) %>%
   ggplot() + geom_polygon(aes(long, lat, group = group, fill = pop)) +
   theme_bw() +
